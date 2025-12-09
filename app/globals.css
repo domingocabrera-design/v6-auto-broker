@@ -1,26 +1,252 @@
-@import "tailwindcss";
+/* ========================================================================
+   TAILWIND BASE
+========================================================================= */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ========================================================================
+   GLOBAL APP RESET + PREMIUM SMOOTHING
+========================================================================= */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-[#f7f8fa] text-gray-900 dark:bg-[#0f0f11] dark:text-gray-100;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: always;
+  letter-spacing: -0.1px;
+  overflow-y: scroll;
+}
+
+/* ========================================================================
+   GLOBAL LUXURY BRANDING — High-end gradient themes
+========================================================================= */
+
+/* Light mode gradient */
+.dashboard-bg {
+  background: linear-gradient(180deg, #fafbfc 0%, #eef1f4 50%, #e7eaee 100%);
+}
+
+/* Dark mode ultra-premium gradient */
+.dark .dashboard-bg {
+  background: linear-gradient(180deg, #0d0e10 0%, #141519 40%, #1a1c21 100%);
+}
+
+/* Ultra-premium glass effect */
+.glass-card {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: saturate(180%) blur(22px);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.dark .glass-card {
+  background: rgba(20, 20, 22, 0.55);
+  backdrop-filter: saturate(200%) blur(26px);
+}
+
+/* ========================================================================
+   CARD SYSTEM — Million dollar shadows
+========================================================================= */
+
+.card-soft {
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  transition: 0.3s ease;
+}
+
+.card-soft-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.10);
+}
+
+.dark .card-soft {
+  box-shadow: 0 8px 22px rgba(255,255,255,0.05);
+}
+
+.dark .card-soft-hover:hover {
+  box-shadow: 0 14px 36px rgba(255,255,255,0.08);
+}
+
+/* ========================================================================
+   FEATURED IMAGES (uniform beautiful cut)
+========================================================================= */
+.featured-img {
+  width: 100%;
+  height: 230px;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+/* ========================================================================
+   CTA BUTTONS — High conversion gradients
+========================================================================= */
+
+.cta-hotlots {
+  background: linear-gradient(90deg, #ff8d40 0%, #ff523c 100%);
+  border-radius: 22px;
+  color: white;
+  padding: 16px 26px;
+  box-shadow: 0 6px 26px rgba(255, 110, 70, 0.28);
+  transition: 0.25s ease;
+}
+
+.cta-hotlots:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 34px rgba(255, 110, 70, 0.38);
+}
+
+/* ========================================================================
+   SCROLLBAR — Minimal + luxurious
+========================================================================= */
+::-webkit-scrollbar {
+  width: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: #e4e4e4;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b6b6b6;
+  border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #202123;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #494c50;
+}
+
+/* ========================================================================
+   SOFT FLOATING ANIMATIONS — Premium Apple vibes
+========================================================================= */
+
+@keyframes float-soft {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.animate-float-soft {
+  animation: float-soft 4.5s ease-in-out infinite;
+  opacity: 0.96;
+}
+
+@keyframes float-soft-slow {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+.animate-float-soft-slow {
+  animation: float-soft-slow 6s ease-in-out infinite;
+}
+
+/* ========================================================================
+   BUTTON REFINEMENTS — Subtle lift effect
+========================================================================= */
+
+button {
+  transition: 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.02);
+}
+
+/* ========================================================================
+   AI BUBBLE — Clean, modern, floating
+========================================================================= */
+
+.ai-bubble {
+  @apply rounded-full shadow-lg cursor-pointer transition;
+  box-shadow: 0px 3px 12px rgba(0,0,0,0.18);
+}
+
+.ai-bubble:hover {
+  transform: scale(1.08);
+}
+
+/* ========================================================================
+   SECTION TITLES — Luxury typography
+========================================================================= */
+
+.section-title {
+  @apply text-[22px] font-semibold tracking-tight text-gray-800 dark:text-gray-200;
+}
+
+/* ========================================================================
+   ROBOT AVATAR GLOW EFFECTS (Silver & Gold V6)
+========================================================================= */
+
+.robot-silver-glow {
+  filter: drop-shadow(0 0 10px rgba(170,180,255,0.32));
+  transition: 0.35s ease;
+}
+
+.robot-silver-glow:hover {
+  filter: drop-shadow(0 0 18px rgba(190,200,255,0.55));
+  transform: scale(1.03);
+}
+
+.robot-gold-glow {
+  filter: drop-shadow(0 0 10px rgba(255,215,120,0.30));
+  transition: 0.35s ease;
+}
+
+.robot-gold-glow:hover {
+  filter: drop-shadow(0 0 22px rgba(255,225,150,0.55));
+  transform: scale(1.035);
+}
+
+/* ========================================================================
+   LIVE BIDDING — STATUS CHANGE VISUAL ALERTS
+========================================================================= */
+
+/* Flash animation for bid status change */
+.flash-green {
+  animation: flashGreen 0.8s ease-in-out;
+}
+
+.flash-red {
+  animation: flashRed 0.8s ease-in-out;
+}
+
+@keyframes flashGreen {
+  0% { background-color: rgba(0,255,0,0.45); }
+  100% { background-color: transparent; }
+}
+
+@keyframes flashRed {
+  0% { background-color: rgba(255,0,0,0.45); }
+  100% { background-color: transparent; }
+}
+
+/* Winning glow pulse */
+.winning-glow {
+  animation: winningPulse 1.4s infinite ease-in-out;
+}
+
+@keyframes winningPulse {
+  0% { box-shadow: 0 0 0 rgba(0,255,0,0.45); }
+  50% { box-shadow: 0 0 22px rgba(0,255,0,1); }
+  100% { box-shadow: 0 0 0 rgba(0,255,0,0.45); }
+}
+
+/* Outbid red pulse */
+.outbid-pulse {
+  animation: outbidPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes outbidPulse {
+  0% { box-shadow: 0 0 0 rgba(255,0,0,0.45); }
+  50% { box-shadow: 0 0 22px rgba(255,0,0,1); }
+  100% { box-shadow: 0 0 0 rgba(255,0,0,0.45); }
 }
