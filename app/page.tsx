@@ -6,9 +6,10 @@ import { useEffect, useState } from "react";
 export default function HomePage() {
   const [featured, setFeatured] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   const targetTime = new Date();
-  targetTime.setHours(17, 0, 0, 0); // 5PM daily
+  targetTime.setHours(17, 0, 0, 0);
   const [timeLeft, setTimeLeft] = useState("");
 
   /* ---------------- LOAD FEATURED LOTS ---------------- */
@@ -26,7 +27,7 @@ export default function HomePage() {
     load();
   }, []);
 
-  /* ---------------- COUNTDOWN TIMER ---------------- */
+  /* ---------------- COUNTDOWN ---------------- */
   useEffect(() => {
     const int = setInterval(() => {
       const now = new Date();
@@ -44,161 +45,229 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black text-white">
 
-      {/* GOLD V6 BOT TOP RIGHT */}
-      <div className="fixed top-6 right-6 opacity-90 hover:opacity-100 transition">
-        <Image
-          src="/goldv6.png"
-          alt="Gold V6 Bot"
-          width={90}
-          height={90}
-          className="drop-shadow-[0_0_18px_rgba(255,215,0,0.45)]"
-        />
-      </div>
+      {/* ================= NAVBAR ================= */}
+      <header className="w-full bg-black/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+          {/* LOGO */}
+          <div className="flex items-center gap-3">
+            <Image
+              src="/v6-logo.png"
+              width={55}
+              height={55}
+              alt="V6 Logo"
+              className="drop-shadow-[0_0_10px_rgba(0,122,255,0.8)]"
+            />
+            <h1 className="text-white text-2xl font-extrabold tracking-wide">
+              V6 Auto Broker
+            </h1>
+          </div>
+
+          {/* NAV LINKS */}
+          <nav className="flex items-center gap-8 text-white text-sm font-semibold">
+            <a href="/" className="hover:text-blue-400 transition">Home</a>
+            <a href="/pricing" className="hover:text-blue-400 transition">Pricing</a>
+            <a href="/faq" className="hover:text-blue-400 transition">FAQ</a>
+            <a href="/contact" className="hover:text-blue-400 transition">Contact Us</a>
+
+            <a
+              href="/login"
+              className="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition shadow-lg text-black font-bold"
+            >
+              Login
+            </a>
+          </nav>
+
+        </div>
+      </header>
 
       {/* ================= HERO ================= */}
-      <section className="relative bg-[#0f0f0f] text-white px-6 py-24 md:py-32 shadow-lg">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10">
+      <section className="relative bg-black text-white px-6 py-20 md:py-28 overflow-hidden border-b border-gray-800">
+        <div className="relative z-10 max-w-5xl mx-auto text-center">
 
-          {/* LEFT SIDE */}
-          <div className="md:w-1/2 text-center md:text-left">
-            <Image 
+          <div className="relative w-fit mx-auto mb-4">
+            <Image
               src="/v6-logo.png"
               alt="V6 Auto Broker Logo"
-              width={220}
-              height={220}
-              className="mx-auto md:mx-0 mb-6"
+              width={180}
+              height={180}
+              className="
+                drop-shadow-[0_0_22px_rgba(0,122,255,0.7)]
+                hover:drop-shadow-[0_0_40px_rgba(0,122,255,1)]
+                transition
+              "
             />
-
-            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
-              Buy From Copart  
-              <span className="text-blue-400"> Without a Dealer License</span>
-            </h1>
-
-            <p className="mt-4 text-gray-300 text-lg">
-              V6 Auto Broker connects you directly to Copart dealer-only auctions with transparent pricing and real support.
-            </p>
-
-            <button className="mt-6 px-8 py-3 bg-blue-600 text-white font-semibold rounded-xl shadow-lg hover:bg-blue-700 transition">
-              Request a Car
-            </button>
-
-            {/* FLAGS */}
-            <div className="flex items-center gap-3 mt-6 justify-center md:justify-start">
-              <Flag code="usa" />
-              <Flag code="mx" />
-              <Flag code="pr" />
-              <Flag code="do" />
-              <Flag code="hn" />
-              <Flag code="sv" />
-            </div>
           </div>
 
-          {/* RIGHT SIDE — (NOW GOLD V6 IS FLOATING TOP RIGHT ONLY) */}
-          <div className="md:w-1/2 flex justify-center relative"></div>
+          <h1 className="text-4xl md:text-5xl font-extrabold">
+            Buy From Copart{" "}
+            <span className="text-blue-500">Without a Dealer License</span>
+          </h1>
 
-          {/* LANGUAGE SWITCH */}
-          <div className="absolute top-6 right-6 flex gap-3">
-            <button className="px-4 py-2 border border-gray-400 rounded-xl text-sm hover:bg-gray-800">
-              EN
-            </button>
-            <button className="px-4 py-2 border border-gray-400 rounded-xl text-sm hover:bg-gray-800">
-              ES
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* ================= COUNTDOWN ================= */}
-      <section className="bg-blue-600 text-white py-6 text-center text-xl font-bold shadow">
-        Next Copart Auction Starts In: <span className="font-extrabold">{timeLeft}</span>
-      </section>
-
-      {/* ================= WHAT IS V6 AUTO BROKER ================= */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-6">What Is V6 Auto Broker?</h2>
-          <p className="text-gray-600 text-lg max-w-3xl mx-auto">
-            V6 Auto Broker gives regular buyers legal access to Copart’s dealer-only auctions —  
-            insurance vehicles, rebuildable cars, clean title units, and premium inventory.
+          <p className="mt-3 text-gray-300 text-lg max-w-2xl mx-auto">
+            Full access to Copart dealer-only auctions through V6 Auto Broker.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mt-14">
-            <InfoBox title="Dealer-Level Access" text="Bid on thousands of Copart lots instantly." />
-            <InfoBox title="No License Required" text="We broker the vehicle for you — legally & safely." />
-            <InfoBox title="Transparent Pricing" text="No surprises. Simple fees. Full support." />
+          {/* LAND CRUISER */}
+          <div className="relative flex justify-center mt-10">
+            <div className="absolute w-[600px] h-[250px] bg-blue-500/10 blur-[90px] rounded-full"></div>
+            <Image
+              src="/cars/land-cruiser.png"
+              alt="Land Cruiser"
+              width={780}
+              height={420}
+              className="relative object-contain drop-shadow-[0_10px_35px_rgba(0,0,0,0.9)]"
+            />
           </div>
+
+          <div className="w-[400px] h-[40px] bg-black/60 blur-[28px] rounded-full mx-auto -mt-7"></div>
+
+          <button
+            className="
+              mt-10 px-14 py-5
+              bg-gradient-to-r from-blue-600 to-blue-500
+              text-white text-2xl font-extrabold tracking-wide
+              rounded-2xl
+              shadow-[0_6px_0_0_rgba(0,60,130,1)]
+              active:translate-y-1 hover:scale-[1.04]
+              transition-all duration-150
+            "
+          >
+            SUBSCRIBE TODAY
+          </button>
+
+          {/* FLAGS */}
+          <div className="flex items-center gap-3 mt-8 justify-center opacity-80">
+            <Flag code="usa" />
+            <Flag code="mx" />
+            <Flag code="gt" />
+            <Flag code="hn" />
+            <Flag code="do" />
+            <Flag code="ng" />
+            <Flag code="af" />
+          </div>
+
         </div>
       </section>
 
-      {/* ================= PREMIUM PRICING (BLACK V6 THEME) ================= */}
-      <section className="py-20 bg-gray-100">
-        <PremiumPricing />
+      {/* ================= SEARCH ================= */}
+      <section className="bg-black py-16 border-b border-gray-800">
+        <div className="max-w-6xl mx-auto px-6">
+
+          <h2 className="text-4xl font-bold text-center mb-6 text-white">
+            Search Vehicles
+          </h2>
+
+          <div className="flex justify-center mb-10">
+            <input
+              type="text"
+              placeholder="Search vehicles..."
+              className="
+                w-full max-w-2xl px-6 py-4 rounded-xl
+                bg-[#0d0d0d] border border-gray-700 text-white
+                shadow-lg
+                focus:border-blue-500 focus:ring-2 focus:ring-blue-600
+                transition
+              "
+              onChange={(e) => setSearch(e.target.value.toLowerCase())}
+            />
+          </div>
+
+          {/* FILTERED GRID */}
+          {loading ? (
+            <p className="text-center text-gray-500">Loading vehicles...</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {featured
+                .filter((car: any) =>
+                  `${car.make} ${car.model} ${car.year}`
+                    .toLowerCase()
+                    .includes(search)
+                )
+                .map((car: any, i: number) => (
+                  <VehicleCard key={i} car={car} />
+                ))}
+            </div>
+          )}
+
+        </div>
       </section>
 
-      {/* ================= COPART PREVIEW (12 Cars) ================= */}
-      <section className="py-20 bg-white">
+      {/* ================= FEATURED COPART LOTS ================= */}
+      <section className="bg-black py-16 border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center mb-12">
-            Hot Copart Deals Today
+          <h2 className="text-4xl font-bold text-center mb-10 text-blue-500">
+            Featured Copart Lots
           </h2>
 
           {loading ? (
-            <p className="text-gray-500 text-center">Loading cars...</p>
-          ) : featured.length === 0 ? (
-            <p className="text-center text-gray-500">No featured cars available.</p>
+            <p className="text-center text-gray-500">Loading featured lots...</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {featured.slice(0, 12).map((car: any, i: number) => (
-                <CarCard key={i} car={car} />
+              {featured.slice(0, 8).map((car: any, i: number) => (
+                <CopartCard key={i} car={car} />
               ))}
             </div>
           )}
         </div>
       </section>
 
-      {/* ================= WHY V6 ================= */}
-      <section className="py-20 bg-gray-100">
-        <WhyV6 />
+      {/* ================= COUNTDOWN ================= */}
+      <section className="bg-blue-600 text-white py-6 text-center text-xl font-bold border-b border-gray-900">
+        Next Copart Auction Starts In: <span className="font-extrabold">{timeLeft}</span>
       </section>
 
-      {/* ================= TESTIMONIALS ================= */}
-      <section className="py-20 bg-white">
-        <Testimonials />
+      {/* ================= WHAT IS V6 ================= */}
+      <section className="py-20 bg-black border-b border-gray-800">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+
+          <h2 className="text-4xl font-bold mb-6">What Is V6 Auto Broker?</h2>
+
+          <p className="text-gray-400 text-lg max-w-3xl mx-auto">
+            V6 Auto Broker gives everyday buyers legal access to Copart’s dealer-only auctions.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mt-14">
+            <InfoBox title="Dealer-Level Access" text="Bid on thousands of Copart lots instantly." />
+            <InfoBox title="No License Required" text="We broker every purchase legally and safely." />
+            <InfoBox title="Transparent Pricing" text="Simple pricing + full support + no surprises." />
+          </div>
+
+        </div>
       </section>
 
-      {/* ================= CTA ================= */}
-      <section className="py-20 bg-blue-600 text-white text-center">
-        <h2 className="text-3xl font-bold mb-2">Start Bidding Today</h2>
-        <p className="opacity-90 mb-6">Your bridge to Copart’s dealer-only inventory.</p>
-        <button className="bg-white text-blue-600 font-semibold px-6 py-3 rounded-xl shadow hover:bg-gray-200">
-          Create Account
-        </button>
+      {/* ================= PRICING ================= */}
+      <section className="py-20 bg-black">
+        <PremiumPricing />
       </section>
+
     </div>
   );
 }
 
-/* ================= FLAG COMPONENT ================= */
+/* ================= FLAG ================= */
 function Flag({ code }: any) {
-  return <Image src={`/${code}.png`} alt={code} width={38} height={26} />;
+  return <Image src={`/${code}.png`} alt={code} width={38} height={26} className="rounded" />;
 }
 
-/* ================= INFO BOX ================= */
-function InfoBox({ title, text }: any) {
-  return (
-    <div className="p-6 bg-white rounded-xl shadow border text-center">
-      <h3 className="font-bold text-xl">{title}</h3>
-      <p className="text-gray-600 mt-2">{text}</p>
-    </div>
-  );
-}
+/* ================= VEHICLE CARD ================= */
+function VehicleCard({ car }: any) {
+  async function handleBid() {
+    const res = await fetch("/api/user/check-subscription");
+    const data = await res.json();
 
-/* ================= CAR CARD ================= */
-function CarCard({ car }: any) {
+    if (!data.subscribed) {
+      window.location.href = "/pricing";
+      return;
+    }
+
+    window.location.href = `/lot/${car.lotId}`;
+  }
+
   return (
-    <div className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition">
+    <div className="bg-[#0f0f0f] border border-gray-700 rounded-xl shadow hover:shadow-blue-900/40 hover:scale-[1.03] transition p-4">
       <Image
         src={car.image}
         alt="Car"
@@ -206,85 +275,95 @@ function CarCard({ car }: any) {
         height={260}
         className="w-full h-48 object-cover rounded-lg"
       />
-      <h3 className="font-bold mt-3">{car.year} {car.make} {car.model}</h3>
-      <p className="text-gray-500 text-sm">Odometer: {car.odometer}</p>
-      <p className="text-gray-500 text-sm">Location: {car.location}</p>
+
+      <h3 className="font-bold mt-3 text-lg text-white">
+        {car.year} {car.make} {car.model}
+      </h3>
+
+      <p className="text-gray-400 text-sm">Lot #{car.lotId}</p>
+      <p className="text-gray-400 text-sm">Location: {car.location}</p>
+      <p className="text-gray-400 text-sm">Odometer: {car.odometer}</p>
+
+      <button
+        onClick={handleBid}
+        className="
+          mt-4 w-full py-3
+          bg-blue-600 text-white font-bold
+          rounded-xl
+          hover:bg-blue-500
+          transition
+        "
+      >
+        BID NOW
+      </button>
     </div>
   );
 }
 
-/* ================= PREMIUM PRICING ================= */
+/* ================= COPART CARD ================= */
+function CopartCard({ car }: any) {
+  return (
+    <div className="bg-[#0f0f0f] border border-gray-700 rounded-xl shadow p-4 hover:shadow-blue-900/40 hover:scale-[1.03] transition">
+      <Image
+        src={car.image}
+        alt="Car"
+        width={400}
+        height={260}
+        className="w-full h-44 object-cover rounded-md"
+      />
+
+      <h3 className="font-bold mt-3 text-lg text-white">
+        {car.year} {car.make} {car.model}
+      </h3>
+
+      <p className="text-gray-400 text-sm">Lot #{car.lotId}</p>
+      <p className="text-gray-400 text-sm">Location: {car.location}</p>
+      <p className="text-gray-400 text-sm">Odometer: {car.odometer}</p>
+
+      <button className="mt-4 w-full py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-500 transition">
+        BID NOW
+      </button>
+    </div>
+  );
+}
+
+/* ================= INFO BOX ================= */
+function InfoBox({ title, text }: any) {
+  return (
+    <div className="p-6 bg-[#0f0f0f] rounded-xl border border-gray-700 shadow text-center">
+      <h3 className="font-bold text-lg">{title}</h3>
+      <p className="text-gray-400 mt-2">{text}</p>
+    </div>
+  );
+}
+
+/* ================= PRICING ================= */
 function PremiumPricing() {
   return (
     <div className="max-w-7xl mx-auto px-6">
-      <h2 className="text-4xl font-bold text-center mb-4 text-black">
-        V6 Auto Broker Plans
-      </h2>
-      <p className="text-center text-gray-600 mb-14">
-        Unlock dealer-level buying power with transparent pricing.
+      <h2 className="text-4xl font-bold text-center mb-4">V6 Auto Broker Plans</h2>
+      <p className="text-center text-gray-400 mb-14 text-lg">
+        Every plan includes a <span className="text-blue-400 font-bold">7-Day Free Trial</span>.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        
-        <PlanCard
-          title="Single Car Access"
-          price="249"
-          color="blue"
-          features={[
-            "Buy 1 car with no dealer license",
-            "Basic support",
-            "Damage review help",
-            "Transparent broker fee",
-            "Copart bidding guidance",
-          ]}
-        />
+        <PlanCard title="Single Car Access" price="249" color="blue"
+          features={["Buy 1 car","Basic support","Damage review","Transparent fees","Guided bidding"]} />
 
-        <PlanCard
-          title="3-Car Pro Access"
-          price="599"
-          color="green"
-          highlight
-          features={[
-            "Buy up to 3 cars monthly",
-            "Priority customer support",
-            "Faster approval",
-            "Discounted broker fees",
-            "Market value guidance",
-          ]}
-        />
+        <PlanCard title="3-Car Pro Access" price="599" color="green" highlight
+          features={["Buy 3 cars monthly","Priority support","Fast approval","Discounted fees","Market guidance"]} />
 
-        <PlanCard
-          title="5-Car Elite Access"
-          price="899"
-          color="yellow"
-          features={[
-            "Buy up to 5 cars monthly",
-            "VIP support",
-            "Early access to hot lots",
-            "Paperwork assistance",
-            "Transport help",
-          ]}
-        />
+        <PlanCard title="5-Car Elite Access" price="899" color="yellow"
+          features={["Buy 5 cars monthly","VIP support","Early access","Paperwork help","Transport help"]} />
 
-        <PlanCard
-          title="10-Car Dealer Plan"
-          price="1299"
-          color="red"
-          features={[
-            "Buy up to 10 cars monthly",
-            "Top tier support",
-            "Personal advisor",
-            "Dealer-level priority",
-            "Advanced bidding tools",
-          ]}
-        />
-
+        <PlanCard title="10-Car Dealer Plan" price="1299" color="red"
+          features={["Buy 10 cars","Top tier support","Personal advisor","Priority access","Advanced tools"]} />
       </div>
     </div>
   );
 }
 
-/* ================= PLAN CARD ================= */
+/* ================= PLAN CARD WITH DIAGONAL RIBBON ================= */
 function PlanCard({ title, price, features, color, highlight }: any) {
   const borderColor = {
     blue: "border-blue-500",
@@ -296,15 +375,35 @@ function PlanCard({ title, price, features, color, highlight }: any) {
   return (
     <div
       className={`
-        p-8 rounded-2xl shadow-xl bg-black text-white border ${borderColor}
-        ${highlight ? "scale-105 shadow-2xl" : ""}
-        transition hover:scale-105
+        relative
+        p-8 rounded-2xl shadow-xl bg-[#0f0f0f] text-white border ${borderColor}
+        transition hover:scale-105 hover:shadow-blue-900/40
+        ${highlight ? "scale-105 shadow-blue-900/40" : ""}
       `}
     >
-      <h3 className={`text-2xl font-bold mb-3 text-${color}-400`}>{title}</h3>
+
+      {/* ✦ DIAGONAL RIBBON ✦ */}
+      <div
+        className="
+          absolute top-4 -right-14 
+          bg-blue-600 text-white font-bold text-sm
+          py-2 px-16 
+          rotate-45
+          shadow-lg
+        "
+      >
+        7-DAY FREE TRIAL
+      </div>
+
+      <h3 className={`text-2xl font-bold mb-3 text-${color}-400`}>
+        {title}
+      </h3>
 
       <p className="text-5xl font-extrabold">${price}</p>
-      <p className="text-gray-400 text-sm mb-6">one-time plan</p>
+
+      <p className="text-gray-400 text-sm mt-1 mb-6">
+        One-Time Plan
+      </p>
 
       <ul className="space-y-2 text-gray-300 text-sm">
         {features.map((f: string, i: number) => (
@@ -312,66 +411,15 @@ function PlanCard({ title, price, features, color, highlight }: any) {
         ))}
       </ul>
 
-      <button className="w-full mt-6 py-3 rounded-xl bg-white text-black font-semibold hover:bg-gray-200 transition">
+      <button
+        className="
+          w-full mt-6 py-3 rounded-xl 
+          bg-blue-600 text-black font-semibold 
+          hover:bg-blue-500 transition
+        "
+      >
         Select Plan
       </button>
-    </div>
-  );
-}
-
-/* ================= WHY V6 ================= */
-function WhyV6() {
-  return (
-    <div className="max-w-6xl mx-auto px-6">
-      <h2 className="text-3xl font-bold text-center mb-10">Why V6 Auto Broker?</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <FeatureCard 
-          title="Buy Like a Dealer" 
-          description="Official broker access to Copart dealer-only inventory."
-        />
-        <FeatureCard 
-          title="7X Buying Power" 
-          description="Your deposit unlocks massive buying power instantly."
-        />
-        <FeatureCard 
-          title="We Handle Everything" 
-          description="Transport, bidding, guidance — full support from A to Z."
-        />
-      </div>
-    </div>
-  );
-}
-
-function FeatureCard({ title, description }: any) {
-  return (
-    <div className="bg-white border p-6 rounded-xl shadow text-center">
-      <h3 className="font-bold text-lg">{title}</h3>
-      <p className="text-gray-600 mt-2">{description}</p>
-    </div>
-  );
-}
-
-/* ================= TESTIMONIALS ================= */
-function Testimonials() {
-  return (
-    <div className="max-w-6xl mx-auto px-6">
-      <h2 className="text-3xl font-bold text-center mb-10">What Buyers Say</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <Testimonial name="Carlos R." text="V6 Auto Broker helped me buy my first Copart car easily!" />
-        <Testimonial name="Luis M." text="The 7X buying power changed everything for me." />
-        <Testimonial name="Ana D." text="Perfect for buyers in USA and Latin America." />
-      </div>
-    </div>
-  );
-}
-
-function Testimonial({ name, text }: any) {
-  return (
-    <div className="bg-white border p-6 rounded-xl shadow text-center">
-      <p className="italic text-gray-600">{text}</p>
-      <p className="mt-3 font-bold">{name}</p>
     </div>
   );
 }

@@ -17,12 +17,15 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
   const [ship, setShip] = useState<any>(null);
 
   // =========================================================
-  // FETCH LOT DATA
+  // FETCH LOT DATA (Matches the normalized API)
   // =========================================================
   const fetchLot = async () => {
     try {
       const res = await fetch(`/api/copart/live/${lotId}`);
       const data = await res.json();
+
+      if (!data.success) return;
+
       setLot(data.lot);
       setMainImg(data.lot.images[0]);
       setLoading(false);
@@ -33,31 +36,20 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
 
   useEffect(() => {
     fetchLot();
+
+    // Auto-refresh every 5 sec
     const interval = setInterval(fetchLot, 5000);
     return () => clearInterval(interval);
   }, []);
 
   // =========================================================
-  // LIVE BID UPDATES VIA WEBSOCKET
+  // LIVE BID UPDATES VIA FUTURE WEBSOCKET (Optional)
   // =========================================================
   useEffect(() => {
     if (!lot) return;
 
-    const ws = new WebSocket(
-      `${window.location.origin.replace("http", "ws")}/api/ws?lotId=${lotId}`
-    );
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
-      if (data.bid && data.bid !== lot.currentBid) {
-        setLot((prev: any) => ({ ...prev, currentBid: data.bid }));
-        setFlash(true);
-        setTimeout(() => setFlash(false), 350);
-      }
-    };
-
-    return () => ws.close();
+    // Example only — you’ll add the real WS later
+    // ws.onmessage = ...
   }, [lot]);
 
   // =========================================================
@@ -87,12 +79,11 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
   }, [lot]);
 
   // =========================================================
-  // SHIPPING CALCULATOR
+  // SHIPPING CALCULATOR (Works with your APIs)
   // =========================================================
   const calculateShipping = async () => {
     setShip(null);
 
-    // 1. ZIP → Coordinates
     const geo = await fetch("/api/shipping/geo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -105,7 +96,6 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
       return;
     }
 
-    // 2. Distance + Price
     const result = await fetch("/api/shipping/calc", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -114,7 +104,7 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
         yardLon: lot.yard.lon,
         customerLat: geoData.lat,
         customerLon: geoData.lon,
-        rate: 2.25, // price per mile
+        rate: 2.25,
       }),
     });
 
@@ -125,13 +115,13 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
   };
 
   // =========================================================
-  // LOADING STATE
+  // LOADING
   // =========================================================
   if (loading)
     return <p className="text-center py-20 text-gray-600 text-lg">Loading lot...</p>;
 
   // =========================================================
-  // MAIN COPART-STYLE UI
+  // MAIN UI
   // =========================================================
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -144,16 +134,15 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
         <p className="text-gray-600 mt-1 text-sm">Lot #{lotId}</p>
       </div>
 
-      {/* IMAGE + LIVE AUCTION */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
 
         {/* LEFT — IMAGES */}
         <div className="md:col-span-7">
-          <div className="w-full h-[420px] rounded-xl overflow-hidden shadow-md border">
+          <div className="w-full h-[420px] rounded-xl overflow-hidden shadow-md border relative">
             <Image
               src={mainImg}
-              fill
               alt="Vehicle"
+              fill
               className="object-cover"
             />
           </div>
@@ -205,7 +194,6 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
             Request a Bid
           </a>
 
-          {/* BUY IT NOW */}
           {lot.buyItNow && (
             <div className="mt-6 p-5 rounded-xl bg-green-50 border border-green-300">
               <p className="text-green-700 font-extrabold text-2xl">
@@ -223,7 +211,7 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
         </div>
       </div>
 
-      {/* DETAILS */}
+      {/* LOWER DETAILS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
 
         {/* LEFT DETAILS */}
@@ -238,7 +226,7 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
               <p><strong>Model:</strong> {lot.model}</p>
               <p><strong>Odometer:</strong> {lot.odometer} miles</p>
               <p><strong>Keys:</strong> {lot.keys ? "Yes" : "No"}</p>
-              <p><strong>Condition:</strong> {lot.condition || "Unknown"}</p>
+              <p><strong>Condition:</strong> {lot.condition}</p>
             </div>
           </section>
 
@@ -254,19 +242,19 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
             </div>
           </section>
 
-          {/* TITLE INFO */}
+          {/* TITLE */}
           <section className="bg-white p-6 rounded-xl shadow border">
             <h2 className="text-xl font-bold mb-4">Title Information</h2>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <p><strong>VIN:</strong> {lot.vin}</p>
               <p><strong>Title Type:</strong> {lot.titleType}</p>
               <p><strong>Title State:</strong> {lot.titleState}</p>
-              <p><strong>Brand:</strong> {lot.titleBrand}</p>
+              <p><strong>Brand:</strong> {lot.titleBrand || "None"}</p>
             </div>
           </section>
 
           {/* SHIPPING ESTIMATE */}
-          <section className="bg-white p-6 rounded-xl shadow border mt-6">
+          <section className="bg-white p-6 rounded-xl shadow border">
             <h2 className="text-xl font-bold mb-4">Shipping Estimate</h2>
 
             <div className="flex flex-col gap-3">
@@ -287,7 +275,7 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
 
               {ship && (
                 <div className="mt-4 border-t pt-4 space-y-1 text-sm">
-                  <p><strong>Miles:</strong> {ship.miles} miles</p>
+                  <p><strong>Miles:</strong> {ship.miles}</p>
                   <p><strong>Estimated Price:</strong> ${ship.price}</p>
                 </div>
               )}
@@ -303,7 +291,7 @@ export default function LotPage({ params }: { params: { lotId: string } }) {
             <h2 className="text-xl font-bold mb-4">Seller Information</h2>
             <p><strong>Name:</strong> {lot.sellerName}</p>
             <p><strong>Type:</strong> {lot.sellerType}</p>
-            <p><strong>Phone:</strong> {lot.sellerPhone}</p>
+            <p><strong>Phone:</strong> {lot.sellerPhone || "N/A"}</p>
           </section>
 
           {/* YARD INFO */}

@@ -1,62 +1,47 @@
-export default function normalizeLot(lotId: string, raw: any) {
-  if (!raw) {
-    return {
-      id: lotId,
-      title: "Unknown Vehicle",
-      images: [],
-      currentBid: 0,
-      bidIncrement: 100,
-      saleStatus: "N/A",
-      auctionEndTime: null,
-    };
-  }
+export default function normalizeLot(raw: any) {
+  const d = raw.lotDetails || raw;
+
+  const images =
+    d.lotImages?.FULL?.map((i: any) => i.url) ||
+    d.lotImages?.MAIN?.url ||
+    [
+      `https://content.copart.com/v1/AUTH_svc.pdoc00001/LPP/${d.lotNumberStr}/f_primary.jpg`,
+    ];
 
   return {
-    id: lotId,
-    title: `${raw.year || ""} ${raw.make || ""} ${raw.model || ""}`.trim(),
+    lotId: d.lotNumberStr,
+    year: d.lotYear,
+    make: d.make || d.lotMake,
+    model: d.modelGroup || d.lotModel,
+    vin: d.vin,
 
-    // Images
-    images: raw.images || [],
+    images,
 
-    // Bidding info
-    currentBid: raw.currentBid || 0,
-    bidIncrement: raw.bidIncrement || 100,
-    saleStatus: raw.saleStatus || "N/A",
-    auctionEndTime: raw.auctionEndTime || null,
+    currentBid: d.currentBid || d.largestBidAmount || 0,
+    bidIncrement: d.minimumBid || 100,
+    saleStatus: d.saleStatus || "Pending",
+    buyItNow: d.buyItNow || null,
+    auctionEndTime: d.auctionDate || null,
 
-    // Vehicle specs
-    year: raw.year || null,
-    make: raw.make || "",
-    model: raw.model || "",
-    odometer: raw.odometer || null,
-    keys: raw.keys || false,
+    odometer: d.odometer?.value || d.odometer || 0,
+    primaryDamage: d.damageDescription || d.lotDamagePrimary,
+    secondaryDamage: d.secondaryDamage || null,
+    condition: d.vehicleCondition || null,
+    keys: d.keysAvailable === "YES",
 
-    // Damage
-    primaryDamage: raw.primaryDamage || "",
-    secondaryDamage: raw.secondaryDamage || "",
-    condition: raw.condition || "",
+    sellerName: d.seller || "Unknown",
+    sellerType: d.sellerType || "Unknown",
+    sellerPhone: d.sellerPhone || null,
 
-    // Title info
-    vin: raw.vin || "",
-    titleType: raw.titleType || "",
-    titleState: raw.titleState || "",
-    titleBrand: raw.titleBrand || "",
+    titleType: d.titleType || d.titleGroup,
+    titleBrand: d.titleBrand || null,
+    titleState: d.titleState || null,
 
-    // Seller info
-    sellerName: raw.sellerName || "",
-    sellerType: raw.sellerType || "",
-    sellerNotes: raw.sellerNotes || "",
-    sellerPhone: raw.sellerPhone || "",
-
-    // Yard info
     yard: {
-      name: raw.yard?.name || "",
-      address: raw.yard?.address || "",
-      lat: raw.yard?.lat || null,
-      lon: raw.yard?.lon || null,
+      name: d.facilityName || d.yardName,
+      address: `${d.locationAddress}, ${d.locationCity}, ${d.locationState}`,
+      lat: d.location?.lat || d.yardLat || 0,
+      lon: d.location?.lon || d.yardLon || 0,
     },
-
-    // Location
-    location: raw.location || "",
   };
 }

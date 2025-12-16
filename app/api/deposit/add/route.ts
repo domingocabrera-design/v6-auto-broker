@@ -8,23 +8,58 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = createServerClient();
 
-    const body = await req.json();
-    const { user_id, amount, type = "card" } = body;
+    // ✅ ALWAYS get user from session (never from body)
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-    if (!user_id || !amount) {
+    if (authError || !user) {
       return NextResponse.json(
-        { error: "Missing user_id or amount" },
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+    const { amount, type = "card" } = body;
+
+    if (!amount || amount <= 0) {
+      return NextResponse.json(
+        { error: "Invalid amount" },
         { status: 400 }
       );
     }
 
+    /* ───────────────────────────────────── */
+    /* 🔒 BLOCK DEPOSIT DURING TRIAL */
+    /* ───────────────────────────────────── */
+    const { data: sub, error: subError } = await supabase
+      .from("subscriptions")
+      .select("status")
+      .eq("user_id", user.id)
+      .single();
+
+    if (subError || !sub || sub.status !== "active") {
+      return NextResponse.json(
+        {
+          error:
+            "Deposits are disabled during your free trial. Please upgrade to activate bidding.",
+        },
+        { status: 403 }
+      );
+    }
+
+    /* ───────────────────────────────────── */
+    /* ✅ INSERT DEPOSIT */
+    /* ───────────────────────────────────── */
     const { data, error } = await supabase
       .from("deposits")
       .insert({
-        user_id,
+        user_id: user.id, // 🔐 server-trusted
         amount,
         type,
-        status: "completed",
+        status: "pending", // 🔒 never auto-complete
       })
       .select()
       .single();

@@ -4,51 +4,80 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// MUST use this version (your Stripe TS types only accept this)
+// ✅ Use a STABLE Stripe API version
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-11-17.clover",
+  apiVersion: "2024-04-10",
 });
 
 export async function POST(req: NextRequest) {
   try {
-    const { planName, amount } = await req.json();
+    const body = await req.json();
+    console.log("🟢 Checkout request body:", body);
 
-    if (!planName || !amount) {
+    const { priceId, userId, email } = body;
+
+    if (!priceId || !userId || !email) {
+      console.error("🔴 Missing required fields");
       return NextResponse.json(
-        { error: "Missing planName or amount" },
+        { error: "Missing priceId, userId, or email" },
         { status: 400 }
       );
     }
 
-    const priceInCents = Math.round(amount * 100);
+    /* ───────────────────────────────────── */
+    /* CREATE STRIPE CUSTOMER */
+    /* ───────────────────────────────────── */
+    const customer = await stripe.customers.create({
+      email,
+      metadata: {
+        user_id: userId, // must match auth.users.id
+      },
+    });
 
+    console.log("✅ Stripe customer created:", customer.id);
+
+    /* ───────────────────────────────────── */
+    /* CREATE CHECKOUT SESSION (SUBSCRIPTION) */
+    /* ───────────────────────────────────── */
     const session = await stripe.checkout.sessions.create({
-      mode: "payment",
+      mode: "subscription",
+
+      customer: customer.id,
+
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: planName,
-            },
-            unit_amount: priceInCents,
-          },
+          price: priceId, // MUST be a valid Stripe PRICE ID
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_URL}/success?plan=${planName}`,
+
+      subscription_data: {
+        trial_period_days: 7,
+        metadata: {
+          user_id: userId,
+        },
+      },
+
+      payment_method_collection: "always",
+
+      success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard?trial=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_URL}/pricing`,
     });
 
-    return NextResponse.json({ url: session.url }, { status: 200 });
-  } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Unknown Stripe error";
-
-    console.error("❌ Stripe Checkout Error:", message);
+    console.log("🎉 Checkout session created:", session.id);
+    console.log("🔗 Checkout URL:", session.url);
 
     return NextResponse.json(
-      { error: message },
+      { url: session.url },
+      { status: 200 }
+    );
+  } catch (err: any) {
+    console.error("❌ STRIPE CHECKOUT ERROR FULL:", err);
+
+    return NextResponse.json(
+      {
+        error: err?.message || "Stripe checkout failed",
+      },
       { status: 500 }
     );
   }
