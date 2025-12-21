@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
-import { STRIPE_PLANS } from "@/lib/stripePlans";
+import { STRIPE_PRICES } from "@/lib/stripePrices";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 
@@ -12,22 +12,33 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: Request) {
   try {
+    // Auth
     const supabase = createRouteHandlerClient({ cookies });
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Not authenticated" },
+        { status: 401 }
+      );
     }
 
+    // Body
     const { plan } = await req.json();
 
-    const selectedPlan = STRIPE_PLANS[plan as keyof typeof STRIPE_PLANS];
+    const selectedPlan =
+      STRIPE_PRICES[plan as keyof typeof STRIPE_PRICES];
+
     if (!selectedPlan) {
-      return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid plan" },
+        { status: 400 }
+      );
     }
 
+    // Stripe checkout
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
@@ -55,6 +66,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
     console.error("❌ STRIPE CHECKOUT ERROR:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json(
+      { error: err.message },
+      { status: 500 }
+    );
   }
 }
