@@ -1,11 +1,25 @@
 import Link from "next/link";
 
-export default function LotCard({ lot }: any) {
+type Subscription = {
+  status: "trialing" | "active" | "past_due" | "canceled" | string;
+} | null;
+
+type LotCardProps = {
+  lot: any;
+  subscription: Subscription;
+};
+
+export default function LotCard({ lot, subscription }: LotCardProps) {
+  const canBid =
+    subscription?.status === "active" ||
+    subscription?.status === "trialing";
+
   return (
     <div className="bg-black border border-gray-800 hover:border-blue-600 rounded-xl overflow-hidden transition shadow-md">
       <img
         src={lot.image || "/placeholder-car.png"}
         className="w-full h-48 object-cover"
+        alt={`${lot.year} ${lot.make} ${lot.model}`}
       />
 
       <div className="p-4">
@@ -27,6 +41,28 @@ export default function LotCard({ lot }: any) {
           >
             View Lot
           </Link>
+        </div>
+
+        {/* ───────────────────────────── */}
+        {/* BID ACTION (LOCKED BY SUB) */}
+        {/* ───────────────────────────── */}
+        <div className="mt-4">
+          <button
+            disabled={!canBid}
+            className={`w-full px-4 py-2 rounded-lg font-semibold transition ${
+              canBid
+                ? "bg-emerald-600 hover:bg-emerald-700"
+                : "bg-gray-700 cursor-not-allowed"
+            }`}
+          >
+            {canBid ? "Place Bid" : "Subscription Required"}
+          </button>
+
+          {!canBid && (
+            <div className="mt-2 text-sm text-yellow-400 text-center">
+              Your subscription is not active. Please upgrade to bid.
+            </div>
+          )}
         </div>
       </div>
     </div>

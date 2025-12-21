@@ -1,0 +1,24 @@
+{
+  "home": {
+    "title": "Compra en Copart Sin Licencia de Dealer",
+    "subtitle": "Acceso legal a subastas exclusivas para dealers con V6 Auto Broker.",
+    "cta": "SUSCRÍBETE HOY",
+    "search": "Buscar vehículos...",
+    "bid": "OFERTAR",
+    "live": "¡Subasta en vivo!",
+    "next": "Próxima subasta Copart en:"
+  },
+  "pricing": {
+    "title": "Precios de V6 Auto Broker",
+    "subtitle": "Acceso simple y transparente a subastas exclusivas para dealers.",
+    "popular": "MÁS POPULAR",
+    "select": "Elegir Plan",
+    "notes": [
+      "Las suscripciones son solo para acceso a la plataforma y no son reembolsables.",
+      "Las tarifas de corretaje aplican únicamente si el vehículo es ganado.",
+      "Los vehículos se venden TAL CUAL, DONDE SE ENCUENTRAN.",
+      "El precio del vehículo, tarifas de subasta, impuestos, envío y exportación no están incluidos.",
+      "La coordinación de envío y la asistencia de exportación son servicios opcionales con costo adicional."
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "home": {
+    "title": "Buy From Copart Without a Dealer License",
+    "subtitle": "Access dealer-only auctions legally through V6 Auto Broker.",
+    "cta": "SUBSCRIBE TODAY",
+    "search": "Search vehicles...",
+    "bid": "BID NOW",
+    "live": "Auction Live Now!",
+    "next": "Next Copart Auction Starts In:"
+  },
+  "pricing": {
+    "title": "V6 Auto Broker Pricing",
+    "subtitle": "Simple, transparent access to dealer-only auctions.",
+    "popular": "MOST POPULAR",
+    "select": "Select Plan",
+    "notes": [
+      "Subscriptions are for platform access only and are non-refundable.",
+      "Broker fees apply only if a vehicle is successfully won.",
+      "All vehicles are sold AS-IS, WHERE-IS.",
+      "Vehicle price, auction fees, taxes, shipping, and export costs are not included.",
+      "Shipping coordination and export assistance are optional services with additional cost."
+    ]
+  }
+}

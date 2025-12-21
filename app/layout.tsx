@@ -14,8 +14,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <ClientLayout>{children}</ClientLayout>
+      <body className="bg-[#0b0b0d] text-white min-h-screen">
+        {/* Client-only providers / effects */}
+        <ClientLayout>
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );
