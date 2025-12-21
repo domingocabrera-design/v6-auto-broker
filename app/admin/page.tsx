@@ -4,17 +4,15 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 export default async function AdminUsersPage() {
   const supabase = createServerComponentClient({ cookies });
 
-  const { data: users } = await supabase
+  const { data } = await supabase
     .from("profiles")
     .select("*")
-    .limit(50);
+    .limit(10);
 
   return (
-    <div className="p-6 text-white">
-      <h1 className="text-2xl font-bold mb-4">Admin Users</h1>
-      <pre className="text-xs bg-black/40 p-4 rounded">
-        {JSON.stringify(users, null, 2)}
-      </pre>
+    <div style={{ padding: 24 }}>
+      <h1>Admin</h1>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );
 }
