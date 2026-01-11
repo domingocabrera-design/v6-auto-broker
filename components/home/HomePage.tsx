@@ -31,7 +31,6 @@ export default function HomePage({ lang }: { lang: Lang }) {
         setTimeLeft(`${h}h ${m}m ${s}s`);
       }
     }, 1000);
-
     return () => clearInterval(timer);
   }, [t.live]);
 
@@ -45,12 +44,30 @@ export default function HomePage({ lang }: { lang: Lang }) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white overflow-hidden">
 
       {/* ================= HERO ================= */}
-      <section className="relative px-6 py-24 text-center border-b border-gray-800">
-        <div className="max-w-5xl mx-auto">
+      <section className="relative py-28 border-b border-gray-800 overflow-hidden">
 
+        {/* Background glow */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/40 via-black to-black" />
+
+        {/* LAND CRUISER HERO (MAIN VISUAL) */}
+        <Image
+          src="/cars/land-cruiser.png"
+          alt="Toyota Land Cruiser"
+          width={1100}
+          height={600}
+          className="
+            absolute right-[-160px] bottom-[-60px]
+            opacity-95
+            drop-shadow-[0_0_90px_rgba(0,122,255,0.55)]
+            pointer-events-none
+          "
+          priority
+        />
+
+        <div className="relative max-w-6xl mx-auto px-6 text-center">
           <Image
             src="/v6-logo.png"
             width={180}
@@ -60,11 +77,11 @@ export default function HomePage({ lang }: { lang: Lang }) {
             priority
           />
 
-          <h1 className="text-4xl md:text-5xl font-extrabold">
+          <h1 className="text-4xl md:text-6xl font-extrabold">
             {t.title}
           </h1>
 
-          <p className="mt-4 text-gray-300 text-lg max-w-2xl mx-auto">
+          <p className="mt-6 text-gray-300 text-xl max-w-3xl mx-auto">
             {t.subtitle}
           </p>
 
@@ -77,14 +94,14 @@ export default function HomePage({ lang }: { lang: Lang }) {
               text-white text-2xl font-extrabold
               rounded-2xl
               shadow-[0_6px_0_0_rgba(0,60,130,1)]
-              hover:scale-[1.04] transition
+              hover:scale-[1.05] transition
             "
           >
             {t.cta}
           </a>
 
           {/* FLAGS */}
-          <div className="flex justify-center gap-3 mt-8 opacity-80">
+          <div className="flex justify-center gap-3 mt-10 opacity-80">
             {["usa","mx","gt","hn","do","ng","af"].map((f) => (
               <Image
                 key={f}
@@ -96,12 +113,27 @@ export default function HomePage({ lang }: { lang: Lang }) {
               />
             ))}
           </div>
-
         </div>
       </section>
 
       {/* ================= FEATURED CAROUSEL ================= */}
-      <FeaturedCarousel />
+      <FeaturedCarousel cars={featured} />
+
+      {/* ================= SHOWCASE STRIP ================= */}
+      <section className="py-16 bg-black">
+        <div className="flex gap-6 overflow-x-auto px-6">
+          {featured.slice(0, 8).map((car, i) => (
+            <Image
+              key={i}
+              src={car.image}
+              alt="Showcase Car"
+              width={420}
+              height={260}
+              className="rounded-2xl shadow-2xl hover:scale-105 transition"
+            />
+          ))}
+        </div>
+      </section>
 
       {/* ================= SEARCH ================= */}
       <section className="py-16 border-b border-gray-800">
@@ -150,21 +182,6 @@ export default function HomePage({ lang }: { lang: Lang }) {
         {t.next} <span className="font-extrabold">{timeLeft}</span>
       </section>
 
-      {/* ================= WHAT IS V6 ================= */}
-      <section className="py-20 border-b border-gray-800">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-6">
-            {lang === "en" ? "What Is V6 Auto Broker?" : "¿Qué es V6 Auto Broker?"}
-          </h2>
-
-          <p className="text-gray-400 text-lg max-w-3xl mx-auto">
-            {lang === "en"
-              ? "V6 Auto Broker gives everyday buyers legal access to Copart’s dealer-only auctions."
-              : "V6 Auto Broker brinda acceso legal a subastas exclusivas para dealers en Copart."}
-          </p>
-        </div>
-      </section>
-
       {/* ================= PRICING CTA ================= */}
       <section className="py-20 text-center">
         <a
@@ -176,7 +193,6 @@ export default function HomePage({ lang }: { lang: Lang }) {
         </a>
       </section>
 
-      {/* ================= STICKY CTA ================= */}
       <StickySubscribeCTA lang={lang} />
     </div>
   );
