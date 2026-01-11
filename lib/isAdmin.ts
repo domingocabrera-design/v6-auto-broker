@@ -1,20 +1,11 @@
-import { cookies } from "next/headers";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+export function isAdmin(email?: string | null) {
+  if (!email) return false;
 
-export async function isAdmin() {
-  const supabase = createServerComponentClient({ cookies });
+  const admins = [
+    "v6autobroker@yahoo.com",
+    "v6autobroker@gmail.com",
+    "empire.com@yourdomain.com",
+  ];
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return false;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", user.id)
-    .single();
-
-  return profile?.is_admin === true;
+  return admins.includes(email);
 }
