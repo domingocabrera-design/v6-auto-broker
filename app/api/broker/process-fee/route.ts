@@ -6,9 +6,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-// Stripe client - MUST use this version (your TS requires it)
+/**
+ * Stripe client
+ * LOCKED to SDK-required version
+ * DO NOT CHANGE unless Stripe SDK changes
+ */
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-11-17.clover",
+  apiVersion: "2025-12-15.clover",
+  typescript: true,
 });
 
 export async function POST(req: NextRequest) {

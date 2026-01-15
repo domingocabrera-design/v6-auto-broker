@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
+import { stripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-// Stripe MUST use this API version (your TS requires it)
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-11-17.clover",
-});
 
 export async function POST(req: NextRequest) {
   try {
@@ -70,8 +65,6 @@ export async function POST(req: NextRequest) {
     // CASE 1 — Deposit covers the fee
     // ----------------------------------------------------
     if (availableDeposit >= brokerFee) {
-      console.log("🔥 Deducting broker fee from deposit…");
-
       await supabase.rpc("lock_deposit", {
         uid: userId,
         lot: lotNumber,
@@ -95,11 +88,9 @@ export async function POST(req: NextRequest) {
     // ----------------------------------------------------
     // CASE 2 — Not enough deposit → Stripe invoice
     // ----------------------------------------------------
-    console.log("⚠️ Deposit insufficient → Creating Stripe invoice…");
-
     const { data: userData, error: userError } = await supabase
       .from("users")
-      .select("stripe_customer_id, email")
+      .select("stripe_customer_id")
       .eq("id", userId)
       .single();
 
@@ -110,11 +101,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const stripeCustomerId = userData.stripe_customer_id;
-
     // Create invoice item
     await stripe.invoiceItems.create({
-      customer: stripeCustomerId,
+      customer: userData.stripe_customer_id,
       amount: brokerFee * 100,
       currency: "usd",
       description: `Broker Fee for Lot ${lotNumber}`,
@@ -122,11 +111,11 @@ export async function POST(req: NextRequest) {
 
     // Create invoice
     const invoice = await stripe.invoices.create({
-      customer: stripeCustomerId,
+      customer: userData.stripe_customer_id,
       auto_advance: true,
     });
 
-    // Save fee record (pending)
+    // Save pending broker fee
     await supabase.from("broker_fees").insert({
       user_id: userId,
       lot_number: lotNumber,
@@ -142,9 +131,9 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (err: any) {
-    console.error("❌ BROKER FEE API ERROR:", err);
+    console.error("❌ BROKER API ERROR:", err);
     return NextResponse.json(
-      { error: err.message ?? "Unknown error" },
+      { error: err.message ?? "Unknown server error" },
       { status: 500 }
     );
   }

@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
+import { stripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-// Required Stripe API version for your installed SDK
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-11-17.clover",
-});
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,29 +17,21 @@ export async function POST(req: NextRequest) {
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url:
-        successUrl ||
+        successUrl ??
         `${process.env.NEXT_PUBLIC_URL}/checkout/success`,
       cancel_url:
-        cancelUrl ||
+        cancelUrl ??
         `${process.env.NEXT_PUBLIC_URL}/pricing`,
     });
 
-    return NextResponse.json({ url: session.url }, { status: 200 });
-  } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Unknown Stripe error";
+    return NextResponse.json({ url: session.url });
 
-    console.error("❌ Create Checkout Session Error:", message);
-
+  } catch (err: any) {
+    console.error("❌ STRIPE CHECKOUT ERROR:", err);
     return NextResponse.json(
-      { error: message },
+      { error: err.message ?? "Stripe error" },
       { status: 500 }
     );
   }
