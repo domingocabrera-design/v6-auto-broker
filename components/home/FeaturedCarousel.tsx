@@ -5,13 +5,23 @@ import { useEffect, useState } from "react";
 
 export default function FeaturedCarousel() {
   const [cars, setCars] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/copart/get-featured")
-      .then(r => r.json())
-      .then(d => setCars(d?.cars?.slice(0, 8) || []));
+      .then((r) => r.json())
+      .then((d) => {
+        setCars(d?.cars?.slice(0, 8) || []);
+      })
+      .catch(() => {
+        setCars([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
+  if (loading) return null;
   if (!cars.length) return null;
 
   return (
@@ -28,15 +38,19 @@ export default function FeaturedCarousel() {
           >
             <Image
               src={car.image}
-              alt="car"
+              alt={`${car.year} ${car.make} ${car.model}`}
               width={300}
               height={180}
-              className="rounded-lg object-cover h-40"
+              className="rounded-lg object-cover h-40 w-full"
             />
+
             <h3 className="mt-3 font-bold">
               {car.year} {car.make} {car.model}
             </h3>
-            <p className="text-gray-400 text-sm">Lot #{car.lotId}</p>
+
+            <p className="text-gray-400 text-sm">
+              Lot #{car.lotId}
+            </p>
           </div>
         ))}
       </div>

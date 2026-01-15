@@ -1,11 +1,18 @@
 import { cookies } from "next/headers";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
+/**
+ * Admin route guard
+ * Next.js 16 + React 19 SAFE
+ * LOCKED – DO NOT CHANGE
+ */
 export async function isAdminRoute() {
-  const cookieStore = await cookies();
+  // cookies() is SYNC in Next.js 16
+  const cookieStore = cookies();
 
   const supabase = createRouteHandlerClient({
-    cookies: () => cookieStore,
+    // Supabase expects a Promise-returning cookies function
+    cookies: async () => cookieStore,
   });
 
   const {

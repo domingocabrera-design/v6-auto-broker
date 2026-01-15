@@ -7,6 +7,11 @@ import FeaturedCarousel from "@/components/home/FeaturedCarousel";
 import StickySubscribeCTA from "@/components/StickySubscribeCTA";
 import { track } from "@/lib/analytics";
 
+/* ======================================================
+   HOME PAGE (LOCKED – REACT 19 / NEXT 16 SAFE)
+   DO NOT PASS PROPS TO FeaturedCarousel
+====================================================== */
+
 export default function HomePage({ lang }: { lang: Lang }) {
   const t = getDict(lang).home;
 
@@ -16,10 +21,10 @@ export default function HomePage({ lang }: { lang: Lang }) {
   const [timeLeft, setTimeLeft] = useState("");
 
   /* ================= AUCTION COUNTDOWN ================= */
-  const targetTime = new Date();
-  targetTime.setHours(17, 0, 0, 0);
-
   useEffect(() => {
+    const targetTime = new Date();
+    targetTime.setHours(17, 0, 0, 0);
+
     const timer = setInterval(() => {
       const diff = targetTime.getTime() - Date.now();
       if (diff <= 0) {
@@ -31,6 +36,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
         setTimeLeft(`${h}h ${m}m ${s}s`);
       }
     }, 1000);
+
     return () => clearInterval(timer);
   }, [t.live]);
 
@@ -39,7 +45,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
     fetch("/api/copart/get-featured")
       .then((r) => r.json())
       .then((d) => setFeatured(d?.cars || []))
-      .catch(() => {})
+      .catch(() => setFeatured([]))
       .finally(() => setLoading(false));
   }, []);
 
@@ -48,11 +54,8 @@ export default function HomePage({ lang }: { lang: Lang }) {
 
       {/* ================= HERO ================= */}
       <section className="relative py-28 border-b border-gray-800 overflow-hidden">
-
-        {/* Background glow */}
         <div className="absolute inset-0 bg-gradient-to-b from-blue-900/40 via-black to-black" />
 
-        {/* LAND CRUISER HERO (MAIN VISUAL) */}
         <Image
           src="/cars/land-cruiser.png"
           alt="Toyota Land Cruiser"
@@ -100,7 +103,6 @@ export default function HomePage({ lang }: { lang: Lang }) {
             {t.cta}
           </a>
 
-          {/* FLAGS */}
           <div className="flex justify-center gap-3 mt-10 opacity-80">
             {["usa","mx","gt","hn","do","ng","af"].map((f) => (
               <Image
@@ -117,7 +119,8 @@ export default function HomePage({ lang }: { lang: Lang }) {
       </section>
 
       {/* ================= FEATURED CAROUSEL ================= */}
-      <FeaturedCarousel cars={featured} />
+      {/* 🔒 LOCKED: NO PROPS ALLOWED */}
+      <FeaturedCarousel />
 
       {/* ================= SHOWCASE STRIP ================= */}
       <section className="py-16 bg-black">
@@ -199,7 +202,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
 }
 
 /* ================= VEHICLE CARD ================= */
-function VehicleCard({ car, lang }: any) {
+function VehicleCard({ car, lang }: { car: any; lang: Lang }) {
   return (
     <div className="bg-[#0f0f0f] border border-gray-700 rounded-xl p-4 hover:scale-[1.03] transition">
       <Image
