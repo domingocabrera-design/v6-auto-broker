@@ -10,7 +10,9 @@ export default async function AdminDepositsPage() {
       available_amount,
       locked_amount,
       lock_expires_at,
-      profiles ( email )
+      profiles:profiles!inner (
+        email
+      )
     `);
 
   return (
