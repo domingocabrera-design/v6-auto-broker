@@ -6,12 +6,8 @@ type DepositRow = {
   locked_amount: number;
   lock_expires_at: string | null;
   profiles:
-    | {
-        email: string;
-      }
-    | {
-        email: string;
-      }[];
+    | { email: string }
+    | { email: string }[];
 };
 
 export default async function AdminDepositsPage() {
