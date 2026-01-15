@@ -5,15 +5,19 @@ import { enforceNotFrozen } from "@/lib/enforceNotFrozen";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-04-10",
-});
+/**
+ * IMPORTANT:
+ * Do NOT pass apiVersion.
+ * Stripe SDK pins the correct version internally.
+ */
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { priceId, userId, email } = body;
 
+    // ───── VALIDATION ─────
     if (!priceId || !userId || !email) {
       return NextResponse.json(
         { error: "Missing priceId, userId, or email" },
@@ -21,7 +25,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    /* ───── FREEZE CHECK (CRITICAL) ───── */
+    // ───── FREEZE CHECK (CRITICAL) ─────
     const freeze = await enforceNotFrozen(userId);
 
     if (!freeze.allowed) {
@@ -31,13 +35,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    /* ───── CREATE STRIPE CUSTOMER ───── */
+    // ───── CREATE STRIPE CUSTOMER ─────
     const customer = await stripe.customers.create({
       email,
-      metadata: { user_id: userId },
+      metadata: {
+        user_id: userId,
+      },
     });
 
-    /* ───── CHECKOUT SESSION ───── */
+    // ───── CREATE CHECKOUT SESSION ─────
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customer.id,
@@ -59,10 +65,14 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (err: any) {
-    console.error("STRIPE CHECKOUT ERROR:", err);
+  } catch (err: unknown) {
+    console.error("❌ STRIPE CHECKOUT ERROR:", err);
+
+    const message =
+      err instanceof Error ? err.message : "Stripe checkout failed";
+
     return NextResponse.json(
-      { error: err?.message || "Stripe checkout failed" },
+      { error: message },
       { status: 500 }
     );
   }

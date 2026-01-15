@@ -7,11 +7,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  /* ✅ NEXT 16 FIX */
-  const cookieStore = await cookies();
+  /* ───── COOKIES (SYNC IN NEXT 16) ───── */
+  const cookieStore = cookies();
 
   const supabase = createRouteHandlerClient({
-    cookies: () => cookieStore,
+    cookies: () => Promise.resolve(cookieStore), // ✅ FIX
   });
 
   /* 1️⃣ AUTH */

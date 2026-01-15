@@ -10,10 +10,12 @@ export default async function AdminLayout({
 }: {
   children: ReactNode;
 }) {
-  const cookieStore = await cookies();
+  // ✅ cookies() is SYNC in Next.js 16
+  const cookieStore = cookies();
 
+  // ✅ Supabase expects a Promise
   const supabase = createServerComponentClient({
-    cookies: () => cookieStore,
+    cookies: () => Promise.resolve(cookieStore),
   });
 
   // 🔐 Auth check
@@ -45,9 +47,7 @@ export default async function AdminLayout({
         </div>
       </header>
 
-      <main className="p-6 max-w-7xl mx-auto">
-        {children}
-      </main>
+      <main className="p-6 max-w-7xl mx-auto">{children}</main>
     </div>
   );
 }

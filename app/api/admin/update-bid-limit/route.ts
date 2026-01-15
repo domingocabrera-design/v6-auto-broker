@@ -8,12 +8,12 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    /* ───── FIX: AWAIT COOKIES ───── */
-    const cookieStore = await cookies();
+    /* ───── COOKIES (SYNC) ───── */
+    const cookieStore = cookies();
 
     /* ───── AUTH CLIENT (USER SESSION) ───── */
     const supabaseAuth = createRouteHandlerClient({
-      cookies: () => cookieStore, // ✅ NOW SYNC
+      cookies: () => Promise.resolve(cookieStore), // ✅ FIX
     });
 
     const {

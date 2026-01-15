@@ -17,10 +17,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const processed = [];
+    const processed: string[] = [];
 
     for (const r of rows) {
-      const normalized = normalizeLot(r.raw, r.lot_id);
+      // ✅ FIX: pass ONE argument only
+      const normalized = normalizeLot({
+        ...r.raw,
+        lot_id: r.lot_id,
+      });
 
       const { error } = await supabaseAdmin
         .from("lots")
@@ -39,7 +43,6 @@ export async function POST(req: NextRequest) {
       rows: processed,
     });
   } catch (err: unknown) {
-    // ⭐ FIXED: safely handle unknown error
     const message =
       err instanceof Error ? err.message : "Unknown server error";
 

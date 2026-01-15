@@ -5,15 +5,24 @@ import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-04-10",
-});
+/**
+ * IMPORTANT:
+ * - Do NOT pass apiVersion (Stripe SDK pins it internally)
+ * - Wrap cookies in Promise.resolve for Next.js 16
+ */
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
   try {
-    // Auth
-    const supabase = createRouteHandlerClient({ cookies });
+    /* ───── AUTH ───── */
+    const cookieStore = cookies();
+
+    const supabase = createRouteHandlerClient({
+      cookies: () => Promise.resolve(cookieStore),
+    });
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -25,7 +34,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Body
+    /* ───── BODY ───── */
     const { plan } = await req.json();
 
     const selectedPlan =
@@ -38,10 +47,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // Stripe checkout
+    /* ───── STRIPE CHECKOUT ───── */
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      payment_method_types: ["card"],
       line_items: [
         {
           price: selectedPlan.priceId,
@@ -64,10 +72,14 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("❌ STRIPE CHECKOUT ERROR:", err);
+
+    const message =
+      err instanceof Error ? err.message : "Stripe checkout failed";
+
     return NextResponse.json(
-      { error: err.message },
+      { error: message },
       { status: 500 }
     );
   }

@@ -9,7 +9,9 @@ export default function normalizeLot(raw: any) {
     ];
 
   return {
-    lotId: d.lotNumberStr,
+    // ✅ MATCH DATABASE COLUMN
+    lot_id: d.lotNumberStr,
+
     year: d.lotYear,
     make: d.make || d.lotMake,
     model: d.modelGroup || d.lotModel,

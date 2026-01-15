@@ -1,43 +1,36 @@
 "use server";
 
-import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 
 function getSupabase() {
-  const cookieStore = cookies();
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
-        },
-      },
-    }
-  );
+  return createServerActionClient({
+    cookies,
+  });
 }
 
 export async function forceActivate(subscriptionId: string) {
   const supabase = getSupabase();
 
-  await supabase
+  const { error } = await supabase
     .from("subscriptions")
     .update({ status: "active" })
     .eq("id", subscriptionId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export async function cancelSubscription(subscriptionId: string) {
   const supabase = getSupabase();
 
-  await supabase
+  const { error } = await supabase
     .from("subscriptions")
     .update({ status: "canceled" })
     .eq("id", subscriptionId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }

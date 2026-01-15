@@ -31,7 +31,8 @@ export default async function AdminUserProfile({ params }: PageProps) {
         Status: {user.is_frozen ? "❄️ Frozen" : "Active"}
       </p>
 
-      <FreezeButton userId={id} frozen={user.is_frozen} />
+      {/* ✅ FIXED PROP NAME */}
+      <FreezeButton userId={id} isFrozen={user.is_frozen} />
     </div>
   );
 }

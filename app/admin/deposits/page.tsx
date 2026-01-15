@@ -5,9 +5,7 @@ type DepositRow = {
   available_amount: number;
   locked_amount: number;
   lock_expires_at: string | null;
-  profiles:
-    | { email: string }
-    | { email: string }[];
+  profiles: { email: string }[];
 };
 
 export default async function AdminDepositsPage() {
@@ -20,7 +18,7 @@ export default async function AdminDepositsPage() {
       available_amount,
       locked_amount,
       lock_expires_at,
-      profiles:profiles!inner (
+      profiles (
         email
       )
     `);
@@ -30,13 +28,11 @@ export default async function AdminDepositsPage() {
       <h1 className="text-2xl font-bold mb-4">Deposits</h1>
 
       {(deposits as DepositRow[] | null)?.map((d) => {
-        const email = Array.isArray(d.profiles)
-          ? d.profiles[0]?.email
-          : d.profiles?.email;
+        const email = d.profiles?.[0]?.email ?? "—";
 
         return (
           <div key={d.user_id} className="border p-4 rounded mb-3">
-            <div>{email ?? "—"}</div>
+            <div>{email}</div>
             <div>Available: ${d.available_amount}</div>
             <div>Locked: ${d.locked_amount}</div>
             <div>Lock expires: {d.lock_expires_at || "—"}</div>
