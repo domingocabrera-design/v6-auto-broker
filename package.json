@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   },
   "dependencies": {
     "@react-spring/web": "^10.0.3",
@@ -35,7 +35,7 @@
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "@types/node": "^20.11.25",
+    "@types/node": "^24.0.0",
     "@types/papaparse": "^5.5.1",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
