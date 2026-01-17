@@ -10,12 +10,12 @@ export default async function AdminLayout({
 }: {
   children: ReactNode;
 }) {
-  // ✅ NEXT 16: cookies() IS ASYNC
-  const cookieStore = await cookies();
+  // ✅ DO NOT await cookies()
+  const cookieStore = cookies();
 
-  // ✅ Pass cookies DIRECTLY (no Promise.resolve)
+  // ✅ Supabase expects an async function
   const supabase = createServerComponentClient({
-    cookies: () => cookieStore,
+    cookies: async () => cookieStore,
   });
 
   // 🔐 Auth check
