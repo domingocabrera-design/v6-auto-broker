@@ -8,10 +8,12 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
    ADMIN AUTH (used by multiple actions)
 ────────────────────────────────────────────── */
 async function getAdminUser() {
-  const cookieStore = cookies();
+  // ✅ MUST await cookies() in server actions
+  const cookieStore = await cookies();
 
+  // ✅ NO Promise.resolve
   const supabaseAuth = createServerComponentClient({
-    cookies: () => Promise.resolve(cookieStore),
+    cookies: () => cookieStore,
   });
 
   const {
@@ -45,7 +47,7 @@ export async function setUserFrozen(
 }
 
 /* ──────────────────────────────────────────────
-   UPDATE BID OVERRIDE  ✅ THIS WAS MISSING
+   UPDATE BID OVERRIDE
 ────────────────────────────────────────────── */
 export async function updateBidOverride(
   userId: string,

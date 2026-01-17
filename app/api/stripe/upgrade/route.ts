@@ -1,17 +1,13 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
-import { STRIPE_PRICES } from "@/lib/stripePrices";
+import { PRICING_PLANS } from "@/lib/pricing";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/**
- * IMPORTANT:
- * - Do NOT pass apiVersion (Stripe SDK pins it internally)
- * - Wrap cookies in Promise.resolve for Next.js 16
- */
+// Stripe SDK pins apiVersion internally
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
@@ -20,7 +16,7 @@ export async function POST(req: Request) {
     const cookieStore = cookies();
 
     const supabase = createRouteHandlerClient({
-      cookies: () => Promise.resolve(cookieStore),
+      cookies: () => cookieStore, // ✅ API ROUTE = SYNC
     });
 
     const {
@@ -38,7 +34,7 @@ export async function POST(req: Request) {
     const { plan } = await req.json();
 
     const selectedPlan =
-      STRIPE_PRICES[plan as keyof typeof STRIPE_PRICES];
+      PRICING_PLANS[plan as keyof typeof PRICING_PLANS];
 
     if (!selectedPlan) {
       return NextResponse.json(
@@ -52,7 +48,7 @@ export async function POST(req: Request) {
       mode: "subscription",
       line_items: [
         {
-          price: selectedPlan.priceId,
+          price: selectedPlan.stripePriceId,
           quantity: 1,
         },
       ],
@@ -60,19 +56,19 @@ export async function POST(req: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/pricing?cancelled=1`,
       metadata: {
         user_id: user.id,
-        plan,
+        plan: selectedPlan.id,
       },
       subscription_data: {
         metadata: {
           user_id: user.id,
-          plan,
+          plan: selectedPlan.id,
         },
         trial_period_days: 7,
       },
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (err: unknown) {
+  } catch (err) {
     console.error("❌ STRIPE CHECKOUT ERROR:", err);
 
     const message =

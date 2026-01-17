@@ -10,12 +10,12 @@ export default async function AdminLayout({
 }: {
   children: ReactNode;
 }) {
-  // ✅ cookies() is SYNC in Next.js 16
-  const cookieStore = cookies();
+  // ✅ NEXT 16: cookies() IS ASYNC
+  const cookieStore = await cookies();
 
-  // ✅ Supabase expects a Promise
+  // ✅ Pass cookies DIRECTLY (no Promise.resolve)
   const supabase = createServerComponentClient({
-    cookies: () => Promise.resolve(cookieStore),
+    cookies: () => cookieStore,
   });
 
   // 🔐 Auth check
@@ -37,12 +37,19 @@ export default async function AdminLayout({
   return (
     <div className="bg-[#0b0b0d] text-white min-h-screen">
       <header className="border-b border-gray-800 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
           <h1 className="text-xl font-bold">V6 Admin Panel</h1>
+
           <nav className="flex gap-4 text-sm text-gray-400">
-            <a href="/admin/users">Users</a>
-            <a href="/admin/subscriptions">Subscriptions</a>
-            <a href="/dashboard">Exit</a>
+            <a href="/admin/users" className="hover:text-white">
+              Users
+            </a>
+            <a href="/admin/subscriptions" className="hover:text-white">
+              Subscriptions
+            </a>
+            <a href="/dashboard" className="hover:text-white">
+              Exit
+            </a>
           </nav>
         </div>
       </header>

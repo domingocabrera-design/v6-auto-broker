@@ -1,18 +1,26 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 import { enforceNotFrozen } from "@/lib/enforceNotFrozen";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  /* ───── COOKIES (SYNC IN NEXT 16) ───── */
+  // ✅ DO NOT await cookies() in Next.js 16
   const cookieStore = cookies();
 
-  const supabase = createRouteHandlerClient({
-    cookies: () => Promise.resolve(cookieStore), // ✅ FIX
-  });
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+      },
+    }
+  );
 
   /* 1️⃣ AUTH */
   const {

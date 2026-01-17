@@ -1,78 +1,69 @@
 import Stripe from "stripe";
-import { NextRequest, NextResponse } from "next/server";
-import { enforceNotFrozen } from "@/lib/enforceNotFrozen";
+import { NextResponse } from "next/server";
+import { PRICING_PLANS } from "@/lib/pricing";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/**
- * IMPORTANT:
- * Do NOT pass apiVersion.
- * Stripe SDK pins the correct version internally.
- */
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { priceId, userId, email } = body;
+    /* ───── AUTH ───── */
+    const cookieStore = cookies();
+    const supabase = createRouteHandlerClient({
+      cookies: () => cookieStore,
+    });
 
-    // ───── VALIDATION ─────
-    if (!priceId || !userId || !email) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
       return NextResponse.json(
-        { error: "Missing priceId, userId, or email" },
+        { error: "Not authenticated" },
+        { status: 401 }
+      );
+    }
+
+    /* ───── BODY ───── */
+    const { plan } = await req.json();
+
+    const selectedPlan =
+      PRICING_PLANS[plan as keyof typeof PRICING_PLANS];
+
+    if (!selectedPlan) {
+      return NextResponse.json(
+        { error: "Invalid plan" },
         { status: 400 }
       );
     }
 
-    // ───── FREEZE CHECK (CRITICAL) ─────
-    const freeze = await enforceNotFrozen(userId);
-
-    if (!freeze.allowed) {
-      return NextResponse.json(
-        { error: freeze.reason },
-        { status: 403 }
-      );
-    }
-
-    // ───── CREATE STRIPE CUSTOMER ─────
-    const customer = await stripe.customers.create({
-      email,
-      metadata: {
-        user_id: userId,
-      },
-    });
-
-    // ───── CREATE CHECKOUT SESSION ─────
+    /* ───── STRIPE CHECKOUT ───── */
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      customer: customer.id,
       line_items: [
         {
-          price: priceId,
+          price: selectedPlan.stripePriceId,
           quantity: 1,
         },
       ],
-      subscription_data: {
-        trial_period_days: 7,
-        metadata: {
-          user_id: userId,
-        },
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/pricing`,
+      metadata: {
+        user_id: user.id,
+        plan: selectedPlan.id,
       },
-      payment_method_collection: "always",
-      success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard?trial=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_URL}/pricing`,
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (err: unknown) {
+  } catch (err) {
     console.error("❌ STRIPE CHECKOUT ERROR:", err);
 
-    const message =
-      err instanceof Error ? err.message : "Stripe checkout failed";
-
     return NextResponse.json(
-      { error: message },
+      { error: "Stripe checkout failed" },
       { status: 500 }
     );
   }

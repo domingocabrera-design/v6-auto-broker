@@ -1,72 +1,26 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 
-// Fetch latest Copart bid
-async function getLiveBid(lotId: string) {
-  const res = await fetch(
-    `https://www.copart.com/public/data/lotdetails/solr/${lotId}`
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+/**
+ * 🚫 AUTO-BIDDING & LIVE COPART ACCESS DISABLED
+ *
+ * Reason:
+ * - Copart previously flagged automation behavior
+ * - Live bid polling violates Copart terms
+ * - All bids are placed MANUALLY by licensed dealers
+ * - V6 Auto Broker operates as a broker/CRM only
+ *
+ * This endpoint is intentionally disabled to ensure compliance.
+ */
+export async function POST() {
+  return NextResponse.json(
+    {
+      success: false,
+      error:
+        "Auto bidding is disabled. All bids are placed manually through licensed dealer accounts.",
+    },
+    { status: 410 }
   );
-  const json = await res.json();
-  return json?.data?.lotDetails?.lotCurrentBidAmount || 0;
-}
-
-export async function POST(req: Request) {
-  try {
-    const { lotId } = await req.json();
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-
-    // Get all active bids for this lot
-    const { data: bids, error } = await supabase
-      .from("user_bids")
-      .select("*")
-      .eq("lot_id", lotId)
-      .eq("active", true);
-
-    if (error) throw error;
-
-    if (!bids.length)
-      return NextResponse.json({ success: true, message: "No active bidders" });
-
-    // LIVE BID
-    const liveBid = await getLiveBid(lotId);
-
-    // PROCESS EACH BIDDER
-    for (const b of bids) {
-      if (liveBid + 100 > b.max_bid) {
-        // Close bidder (max reached)
-        await supabase
-          .from("user_bids")
-          .update({ active: false })
-          .eq("id", b.id);
-
-        continue;
-      }
-
-      // Otherwise place next bid
-      await fetch(`${process.env.INTERNAL_BID_ENDPOINT}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lotId,
-          amount: liveBid + 100, // increment
-          bidder: b.user_email,
-        }),
-      });
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Auto bidding processed",
-    });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json(
-      { success: false, error: "Auto-bid engine failed" },
-      { status: 500 }
-    );
-  }
 }

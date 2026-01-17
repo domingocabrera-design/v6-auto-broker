@@ -19,6 +19,7 @@
     "@supabase/supabase-js": "^2.86.2",
     "apexcharts": "^5.3.6",
     "clsx": "^2.1.1",
+    "csv-parse": "^6.1.0",
     "csv-parser": "^3.2.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.25",
